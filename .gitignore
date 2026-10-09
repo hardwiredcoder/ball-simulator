@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/top-d-own
+top-d-own.so
+top-d-own.dylib
+top-d-own.dll
+libtop-d-own.a
+top-d-own.a
+top-d-own.lib
+top-d-own-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
