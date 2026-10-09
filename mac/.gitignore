@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/ball-simulator
+ball-simulator.so
+ball-simulator.dylib
+ball-simulator.dll
+libball-simulator.a
+ball-simulator.a
+ball-simulator.lib
+ball-simulator-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

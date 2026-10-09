@@ -1,5 +1,5 @@
 {
-"description": "A minimal D application.",
+"description": "A simple 2D physics engine for simulating balls. Not that great, just thought it'd be a good idea so that I could learn D and raylib.",
 	"dependencies": {
 		"raylib-d": "~>6.0.1"
 	},
