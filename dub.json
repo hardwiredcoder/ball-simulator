@@ -1,43 +1,29 @@
 {
-	"authors": [
-		"hardwiredcoder"
-	],
-	"lflags-linux": [
-		"-rpath=$$ORIGIN"
-	],
-	"license": "MIT",
-	"copyright": "Copyright © 2026, hardwiredcoder",
-	"name": "ball-simulator",
-	"libs": [
-		"raylib"
-	],
-	"lflags-posix": [
-		"-L."
-	],
-	"description": "A simple 2D physics engine for simulating balls that I made from scratch. It's just to help me understand raylib before I start developing games.",
+"description": "A minimal D application.",
 	"dependencies": {
 		"raylib-d": "~>6.0.1"
 	},
-	"configurations": [
-		{
-			"platforms": [
-				"linux"
-			],
-			"targetType": "executable",
-			"libs": [
-				"raylib",
-				"GL",
-				"m",
-				"pthread",
-				"dl",
-				"rt",
-				"X11"
-			],
-			"name": "linux-app"
-		}
+	"authors": [
+		"hardwiredcoder"
 	],
-	"lflags-osx": [
-		"-rpath",
-		"@executable_path/"
-	]
+	"copyright": "Copyright © 2026, hardwiredcoder",
+	"license": "MIT",
+	"name": "ball-simulator",
+
+    "configurations": [
+        {
+            "name": "osx",
+            "platforms": ["osx"],
+            "targetType": "executable",
+            "libs": [
+                "raylib"
+            ],
+            "lflags": [
+                "-L/opt/homebrew/lib",
+                "-framework", "IOKit",
+                "-framework", "Cocoa",
+                "-framework", "OpenGL"
+            ]
+        }
+    ]
 }

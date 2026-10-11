@@ -1,7 +1,6 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"io": "0.3.5",
 		"raylib-d": "6.0.1"
 	}
 }
