@@ -1,12 +1,12 @@
 {
 	"authors": [
-		"hardwiredcoder"
+		"Elijah S."
 	],
 	"lflags-linux": [
 		"-rpath=$$ORIGIN"
 	],
 	"license": "MIT",
-	"copyright": "Copyright © 2026, hardwiredcoder",
+	"copyright": "Copyright © 2026, Elijah S.",
 	"name": "ball-simulator",
 	"libs": [
 		"raylib"
@@ -14,7 +14,7 @@
 	"lflags-posix": [
 		"-L."
 	],
-	"description": "A simple 2D physics engine for simulating balls that I made from scratch. It's just to help me understand raylib before I start developing games.",
+	"description": "A simple 2D physics engine for simulating balls that I made from scratch. It's just to help me understand raylib before I start developing other things.",
 	"dependencies": {
 		"raylib-d": "~>6.0.1"
 	},

@@ -1,12 +1,12 @@
 {
-"description": "A simple 2D physics engine for simulating balls. Not that great, just thought it'd be a good idea so that I could learn D and raylib.",
+"description": "A simple 2D physics engine for simulating balls that I made from scratch. It's just to help me understand raylib before I start developing other things.",
 	"dependencies": {
 		"raylib-d": "~>6.0.1"
 	},
 	"authors": [
-		"hardwiredcoder"
+		"Elijah S."
 	],
-	"copyright": "Copyright © 2026, hardwiredcoder",
+	"copyright": "Copyright © 2026, Elijah S.",
 	"license": "MIT",
 	"name": "ball-simulator",
 

@@ -9,9 +9,7 @@ int amount_of_balls = 0;
 
 int gravatarButtonTimeTilReset = 0;
 
-string alphabet = "abcdefghijklmnopqrstuvwxyz";
-
-int[] collisionBoxes = [-0, -0, -0, -0, -0];
+int[] collisionBoxes = [0, 0, 0, 0, 0];
 /**
 first item 0: starting x position
 second item 1: starting y position
@@ -19,7 +17,7 @@ third item 2: ending x position
 fourth item 3: ending y position
 **/
 
-float[] balls = [-0, -0, -0, -0, -0, -0, -0, -0];
+float[] balls = [0, 0, 0, 0, 0, 0, 0, 0];
 /**
 first item 0: x position
 second item 1: y position
@@ -40,13 +38,13 @@ void main()     // this is the main function that connects all of the runtime co
     MaximizeWindow();
     SetTargetFPS(200);
 
-    float[] spawningBallsSettings = [0, 0, 0, 0.1, 0.994, 20];  // the spawning balls settings do not include x position or y position as it spawns based on the user's mouse position
-    float[] min_spawningBallsSettings = [-35, -35, -2, -2, 0.1, 1];
-    float[] max_spawningBallsSettings = [35, 35, 2, 2, 1, GetScreenHeight()/10];
+    float[] spawningBallsSettings = [0, 0, 0, 0.1, 0.995, 20];  // the spawning balls settings do not include x position or y position as it should spawn based on the user's mouse position
 
     int firstPointX, firstPointY;
+    int scrollForSize = 20;
+    int createBallTimeTilSpam = 0;
 
-    bool drawingBox = false;
+    bool drawingBox = false, drawingBall = false;
 
     collisionBoxes ~= [0, 0, 0, GetScreenHeight(), 1];
     collisionBoxes ~= [GetScreenWidth(), 0, GetScreenWidth(), GetScreenHeight(), 1];
@@ -64,45 +62,79 @@ void main()     // this is the main function that connects all of the runtime co
 
         BeginDrawing();     // this will allow raylib to draw to the window
 
-        if (IsWindowFullscreen())
-        {   // this gets the background
-            renderAll(GemunuLibre);
-        }
-        else
+        if (!drawingBall  &&  IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_MIDDLE)  &&  !(IsMouseButtonDown(MouseButton.MOUSE_BUTTON_RIGHT)))
         {
-            ClearBackground(Colors.GRAY);
+            firstPointX = GetMouseX();
+            firstPointY = GetMouseY();
 
-            DrawTextEx(GemunuLibre, "sorry, fullscreen is required! please press 1", Vector2(0, 0), 50, 2, Colors.BLACK);
-            DrawTextEx(GemunuLibre, "or press escape to quit", Vector2(0, 50), 40, 2, Colors.DARKGRAY);
+            drawingBall = true;
+        }
+        else if (drawingBall  &&  IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT)  &&  !(IsMouseButtonDown(MouseButton.MOUSE_BUTTON_RIGHT)))
+        {
+            drawingBall = false;
+
+            spawningBallsSettings[5] = scrollForSize;
+
+            balls ~= [firstPointX, firstPointY, (GetMouseX()-firstPointX)/(GetScreenWidth()/90), (GetMouseY()-firstPointY)/(GetScreenWidth()/35), spawningBallsSettings[2], spawningBallsSettings[3], spawningBallsSettings[4], spawningBallsSettings[5]];
+            amount_of_balls += 1;
+
+            createBallTimeTilSpam = 120;
+        }
+        else if (drawingBall  &&  !(IsMouseButtonDown(MouseButton.MOUSE_BUTTON_RIGHT)))
+        {
+            if (scrollForSize + to!int(GetMouseWheelMove())*2 > 0) { scrollForSize += to!int(GetMouseWheelMove())*2; }
+
+            DrawLine(firstPointX, firstPointY, GetMouseX(), GetMouseY(), Colors.LIGHTGRAY);
+
+            DrawCircle(firstPointX, firstPointY, scrollForSize, Colors.LIGHTGRAY);
+            DrawCircle(firstPointX, firstPointY, scrollForSize-3, Colors.BLACK);
+            DrawTextEx(GemunuLibre, toStringz("scroll to change\nsize: " ~ to!string(scrollForSize)), Vector2(firstPointX, firstPointY-ratpresV(12)-scrollForSize), ratpresV(6), 2, Colors.GRAY);
+
+            DrawTextEx(GemunuLibre, toStringz("x vel: " ~ to!string( (GetMouseX()-firstPointX)/(GetScreenWidth()/90)) ), Vector2(GetMouseX(), GetMouseY()-40), ratpresV(6), 2, Colors.GRAY);
+            DrawTextEx(GemunuLibre, toStringz("y vel: " ~ to!string( (GetMouseY()-firstPointY)/(GetScreenWidth()/35)) ), Vector2(GetMouseX(), GetMouseY()), ratpresV(6), 2, Colors.GRAY);
+
+            DrawTextEx(GemunuLibre, "left click to release", Vector2((firstPointX+GetMouseX())/2, (firstPointY+GetMouseY())/2), ((ratpresV(5)/2)+mathAbsolute((firstPointX-GetMouseX())/50) + (ratpresV(5)/2)+mathAbsolute((firstPointY-GetMouseY())/50))/2, 2, Colors.GRAY);
         }
 
-        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+        if (IsMouseButtonDown(MouseButton.MOUSE_BUTTON_LEFT)  &&  !drawingBall)
+        {   // spamming new ball system
+            if (createBallTimeTilSpam == 0)
+            {
+                balls ~= [GetMouseX(), GetMouseY(), spawningBallsSettings[0], spawningBallsSettings[1], spawningBallsSettings[2], spawningBallsSettings[3], spawningBallsSettings[4], spawningBallsSettings[5]];
+                amount_of_balls += 1;
+            }
+            else if (createBallTimeTilSpam > 0)
+            {
+                createBallTimeTilSpam -= 1;
+            }
+        }
+        else if (createBallTimeTilSpam == 0)
+        {
+            createBallTimeTilSpam = 100;
+        }
+
+        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT)  &&  !drawingBall)
         {   // spawns a new ball or copies my gravatar link
             if ( (GetMouseX() > 0  &&  GetMouseX() < GetScreenWidth() / 8)  &&  (GetMouseY() > (GetScreenHeight() / 80) * 77  &&  GetMouseY() < GetScreenHeight() / 1))
             {   // copy my gravatar link
-                gravatarButtonTimeTilReset = 100;
+                SetClipboardText("https://gravatar.com/thingso1355be1e86");
+                gravatarButtonTimeTilReset = 500;
             }
-            else
+            else if (createBallTimeTilSpam > 0  &&  createBallTimeTilSpam <= 100)
             {   // spawn a new ball
                 balls ~= [GetMouseX(), GetMouseY(), spawningBallsSettings[0], spawningBallsSettings[1], spawningBallsSettings[2], spawningBallsSettings[3], spawningBallsSettings[4], spawningBallsSettings[5]];
                 amount_of_balls += 1;
             }
         }
 
-        if (IsMouseButtonDown(MouseButton.MOUSE_BUTTON_MIDDLE))
-        {   // continuosly spawns balls as the right mouse button is being held
-            balls ~= [GetMouseX(), GetMouseY(), spawningBallsSettings[0], spawningBallsSettings[1], spawningBallsSettings[2], spawningBallsSettings[3], spawningBallsSettings[4], spawningBallsSettings[5]];
-            amount_of_balls += 1;
-        }
-
-        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
+        if (IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT)  &&  !(IsMouseButtonDown(MouseButton.MOUSE_BUTTON_MIDDLE)))
         {   // starts drawing a collision box/rectangle and sets the first point to where the mouse position is
             firstPointX = GetMouseX();
             firstPointY = GetMouseY();
 
             drawingBox = true;
         }
-        else if (drawingBox && IsMouseButtonReleased(MouseButton.MOUSE_BUTTON_RIGHT))
+        else if (drawingBox  &&  IsMouseButtonReleased(MouseButton.MOUSE_BUTTON_RIGHT))
         {   // this places the rectangle once you have released the right mouse button
             drawingBox = false;
 
@@ -129,7 +161,7 @@ void main()     // this is the main function that connects all of the runtime co
                 }
             }
         }
-        else if (IsMouseButtonDown(MouseButton.MOUSE_BUTTON_RIGHT))
+        else if (IsMouseButtonDown(MouseButton.MOUSE_BUTTON_RIGHT)  &&  !(IsMouseButtonDown(MouseButton.MOUSE_BUTTON_MIDDLE)))
         {   // this draws the rectangle for visualization while you're placing the second point where you want
             if (firstPointX < GetMouseX())
             {
@@ -155,15 +187,36 @@ void main()     // this is the main function that connects all of the runtime co
             }
         }
 
-        if (IsKeyPressed(KeyboardKey.KEY_DELETE))
+        if (IsKeyPressed(KeyboardKey.KEY_BACKSPACE))
         {   // deletes all the balls
-            balls = [-0, -0, -0, -0, -0, -0, -0, -0];
+            balls = [0, 0, 0, 0, 0, 0, 0, 0];
             amount_of_balls = 0;
+        }
+
+        if (IsKeyPressed(KeyboardKey.KEY_EQUAL))
+        {
+            collisionBoxes = [0, 0, 0, 0, 0];
+            collisionBoxes ~= [0, 0, 0, GetScreenHeight(), 1];
+            collisionBoxes ~= [GetScreenWidth(), 0, GetScreenWidth(), GetScreenHeight(), 1];
+            collisionBoxes ~= [0, 0, GetScreenWidth(), 0, 1];
+            collisionBoxes ~= [0, GetScreenHeight(), GetScreenWidth(), GetScreenHeight(), 1];
         }
 
         if (gravatarButtonTimeTilReset > 0)
         {
             gravatarButtonTimeTilReset -= 1;
+        }
+
+        if (IsWindowFullscreen())
+        {
+            renderAll(GemunuLibre);
+        }
+        else
+        {
+            ClearBackground(Colors.GRAY);
+
+            DrawTextEx(GemunuLibre, "sorry, fullscreen is required! please press 1", Vector2(0, 0), 50, 2, Colors.BLACK);
+            DrawTextEx(GemunuLibre, "or press escape to quit", Vector2(0, 50), 40, 2, Colors.DARKGRAY);
         }
 
         EndDrawing();   // this will stop allowing raylib to draw to the window
@@ -176,32 +229,49 @@ void renderAll(Font GemunuLibre)
 {
     ClearBackground(Colors.BLACK);
 
-    //left-aligned
-    DrawTextEx(GemunuLibre, "press escape to quit", Vector2(0, 0), GetScreenWidth() / 80, 2, Colors.GRAY);     // (font, text, position, size, letter-spacing, color) the position is put in Vector2() for DrawTextEx()
-    DrawTextEx(GemunuLibre, "press 1 to toggle fullscreen", Vector2(0, GetScreenHeight() / 45), GetScreenWidth() / 80, 2, Colors.GRAY);
+    simulateBallsTick();
+    renderBoxes();
 
-    DrawTextEx(GemunuLibre, "press delete to kill all of the balls", Vector2(0, GetScreenHeight() / 15), GetScreenWidth() / 80, 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, "press escape to quit", Vector2(0, 0), ratpresV(6), 2, Colors.GRAY);     // (font, text, position, size, letter-spacing, color) the position is put in Vector2() for DrawTextEx()
+    DrawTextEx(GemunuLibre, "press 1 to toggle fullscreen", Vector2(0, ratpresV(5)), ratpresV(6), 2, Colors.GRAY);
+
+    DrawTextEx(GemunuLibre, "press backspace to delete all of the balls", Vector2(0, ratpresV(15)), ratpresV(6), 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, "press = to delete all of the boxes", Vector2(0, ratpresV(20)), ratpresV(6), 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, "left click to spawn a ball", Vector2(0, ratpresV(25)), ratpresV(6), 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, "right click to create a box", Vector2(0, ratpresV(30)), ratpresV(6), 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, "middle click to create a ball with custom size and velocities", Vector2(0, ratpresV(35)), ratpresV(6), 2, Colors.GRAY);
+
+    DrawTextEx(GemunuLibre, toStringz("FPS: " ~ to!string(GetFPS())), Vector2(0, ratpresV(45)), ratpresV(6), 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, toStringz("SIMULATING " ~ to!string(amount_of_balls) ~ " BALLS"), Vector2(0, ratpresV(50)), ratpresV(6), 2, Colors.GRAY);
+
+    DrawTextEx(GemunuLibre, toStringz("MOUSE X:  " ~ to!string(GetMouseX())), Vector2(0, ratpresV(60)), ratpresV(6), 2, Colors.GRAY);
+    DrawTextEx(GemunuLibre, toStringz("MOUSE Y:  " ~ to!string(GetMouseY())), Vector2(0, ratpresV(65)), ratpresV(6), 2, Colors.GRAY);
 
     if (gravatarButtonTimeTilReset > 0)
     {
-        DrawRectangle(0, (GetScreenHeight() / 80) * 77, (GetScreenWidth() / 10) * 2, GetScreenHeight() / 1, Colors.GRAY);
-        DrawRectangle(2, ((GetScreenHeight() / 80) * 77) + 2, ((GetScreenWidth() / 10) * 2) - 4, (GetScreenHeight() / 26) - 4, Colors.BLACK);
+        DrawRectangle(0, 1386, 650, GetScreenHeight(), Colors.GRAY);
+        DrawRectangle(2, 1388, 646, 50, Colors.BLACK);
         DrawTextEx(GemunuLibre, "Copied, paste it in your browser!", Vector2(25, (GetScreenHeight() / 80) * 77), (GetScreenHeight() / 26) - 4, 2, Colors.GRAY);
     }
     else
     {
-        DrawRectangle(0, (GetScreenHeight() / 80) * 77, GetScreenWidth() / 8, GetScreenHeight() / 1, Colors.GRAY);
-        DrawRectangle(2, ((GetScreenHeight() / 80) * 77) + 2, (GetScreenWidth() / 8) - 4, (GetScreenHeight() / 26) - 4, Colors.BLACK);
+        DrawRectangle(0, 1386, 442, GetScreenHeight(), Colors.GRAY);
+        DrawRectangle(2, 1388, 438, 50, Colors.BLACK);
         DrawTextEx(GemunuLibre, "Elijah S. on Gravatar", Vector2(25, (GetScreenHeight() / 80) * 77), (GetScreenHeight() / 26) - 4, 2, Colors.GRAY);
     }
+}
 
-    //right-aligned
-    DrawTextEx(GemunuLibre, ("SIMULATING " ~ to!string(amount_of_balls) ~ " BALLS").toStringz(), Vector2( ( ( (GetScreenWidth() / 80) * 72.3 ) - ( to!string(amount_of_balls).length * ( GetScreenWidth() / 80) /2 ) ), 0), GetScreenWidth()/80, 2, Colors.GRAY);   // a big chunk of this is doing the math to right-align it on the right side of the screen because it's automatically left-aligned
+int ratpresH(int amount) { return (GetScreenWidth() / 200) * amount; }
+int ratpresV(int amount) { return (GetScreenHeight() / 200) * amount; }
 
-    DrawTextEx(GemunuLibre, ("MOUSE X: " ~ to!string(GetMouseX())).toStringz(), Vector2( ( ( (GetScreenWidth() / 80) * 76 ) - ( to!string(GetMouseX()).length * (GetScreenWidth() / 80) / 2 ) ), (GetScreenHeight() / 80) * 4), GetScreenWidth() / 80, 2, Colors.GRAY);
+float mathAbsolute(float a)
+{
+    if (a < 0)
+    {
+        return 0-a;
+    }
 
-    simulateBallsTick();
-    renderBoxes();
+    return a;
 }
 
 int mathSign(float a)
@@ -240,8 +310,6 @@ void simulateBallsTick()
         balls[i * 8] += balls[(i * 8) + 2];
         balls[(i * 8) + 1] += balls[(i * 8) + 3];
 
-        DrawCircle(to!int(balls[i * 8]), to!int(balls[(i * 8) + 1]), balls[(i * 8) + 7], Colors.MAROON);
-
         if (ballTouchingBox(i))
         {
             balls[i * 8] += 0 - balls[(i * 8) + 2];     // changes the x position by the opposite of the x velocity
@@ -260,6 +328,8 @@ void simulateBallsTick()
             balls[(i * 8) + 2] += balls[(i * 8) + 4];
             balls[(i * 8) + 3] += balls[(i * 8) + 5];
         }
+
+        DrawCircle(to!int(balls[i * 8]), to!int(balls[(i * 8) + 1]), balls[(i * 8) + 7], Colors.MAROON);
     }
 }
 
